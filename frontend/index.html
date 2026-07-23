@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>自适应英语口语 Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="shell">
+        <header class="hero">
+            <div>
+                <p class="eyebrow">ADAPTIVE LEARNING AGENT</p>
+                <h1>自适应英语口语 Agent</h1>
+                <p class="subtitle">根据学习目标、练习表现和遗忘风险，动态规划每日表达与复习任务。</p>
+            </div>
+            <div class="day-switcher" aria-label="切换学习日期">
+                <button id="prevDay" type="button" aria-label="前一天">←</button>
+                <span id="dayLabel">Day --</span>
+                <button id="nextDay" type="button" aria-label="后一天">→</button>
+            </div>
+        </header>
+
+        <section id="englishAgentPanel" class="agent-panel" aria-live="polite">
+            <div class="loading">正在读取今日计划…</div>
+        </section>
+
+        <form id="englishProfileForm" class="profile-form" hidden>
+            <div class="profile-grid">
+                <label>学习目标
+                    <input id="englishGoals" type="text" maxlength="180" placeholder="AI 技术面试, 日常交流">
+                </label>
+                <label>当前水平
+                    <select id="englishLevel">
+                        <option>A1</option><option>A2</option><option selected>B1</option>
+                        <option>B2</option><option>C1</option>
+                    </select>
+                </label>
+                <label>每日时长（分钟）
+                    <input id="englishDailyMinutes" type="number" min="5" max="60" step="5">
+                </label>
+                <label>兴趣场景
+                    <input id="englishInterests" type="text" maxlength="240" placeholder="大模型, 旅行">
+                </label>
+            </div>
+            <div class="form-actions">
+                <button id="englishProfileCancel" class="button ghost" type="button">取消</button>
+                <button class="button primary" type="submit">保存并重新规划</button>
+            </div>
+        </form>
+
+        <nav class="tabs" aria-label="学习内容">
+            <button class="tab active" type="button" data-tab="lesson">今日推荐</button>
+            <button class="tab" type="button" data-tab="practice">互动练习</button>
+        </nav>
+
+        <section id="lessonPanel" class="content-card">
+            <div class="loading">正在加载学习内容…</div>
+        </section>
+        <section id="practicePanel" class="content-card" hidden>
+            <div class="empty-state">
+                <strong>完成今日推荐后开始练习</strong>
+                <span>Agent 会根据薄弱项调整题型比例。</span>
+            </div>
+        </section>
+    </main>
+
+    <script src="api_response.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
