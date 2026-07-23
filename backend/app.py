@@ -34,6 +34,11 @@ app.config["MAX_CONTENT_LENGTH"] = 64 * 1024
 app.config["JSON_AS_ASCII"] = False
 
 
+@app.errorhandler(413)
+def request_too_large(_error):
+    return jsonify({"error": "请求内容过大"}), 413
+
+
 @app.after_request
 def add_security_headers(response):
     response.headers["X-Content-Type-Options"] = "nosniff"
@@ -86,9 +91,9 @@ def english_today():
         data = get_today_expression()
         _write_json(str(_day_path(data["day"])), data)
         return jsonify(data)
-    except Exception as error:
+    except Exception:
         app.logger.exception("Failed to generate today's English lesson")
-        return jsonify({"error": str(error)}), 500
+        return jsonify({"error": "内容生成失败，请检查模型配置和服务日志"}), 500
 
 
 @app.get("/api/english/history")
@@ -145,9 +150,9 @@ def english_practice(day):
         }
         _write_json(str(cache_path), result)
         return jsonify(result)
-    except Exception as error:
+    except Exception:
         app.logger.exception("Failed to generate practice for day %s", day)
-        return jsonify({"error": str(error)}), 500
+        return jsonify({"error": "练习生成失败，请检查模型配置和服务日志"}), 500
 
 
 @app.route("/api/english/profile", methods=["GET", "PUT"])
@@ -158,11 +163,18 @@ def english_profile():
         return jsonify(save_profile(request.get_json(silent=True) or {}))
     except ValueError as error:
         return jsonify({"error": str(error)}), 400
+    except Exception:
+        app.logger.exception("Failed to read or update learner profile")
+        return jsonify({"error": "学习画像处理失败"}), 500
 
 
 @app.get("/api/english/dashboard")
 def english_dashboard():
-    return jsonify(get_dashboard())
+    try:
+        return jsonify(get_dashboard())
+    except Exception:
+        app.logger.exception("Failed to build learning dashboard")
+        return jsonify({"error": "学习计划读取失败"}), 500
 
 
 @app.post("/api/english/attempts")
@@ -176,7 +188,14 @@ def english_attempts():
         })
     except (TypeError, ValueError) as error:
         return jsonify({"error": str(error)}), 400
+    except Exception:
+        app.logger.exception("Failed to record learning attempts")
+        return jsonify({"error": "练习记录保存失败"}), 500
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    app.run(
+        host="127.0.0.1",
+        port=int(os.environ.get("PORT", "5000")),
+        debug=False,
+    )
